@@ -53,7 +53,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>springboot-aws-deplo</finalName>
+		<finalName>springboot-aws-deploy</finalName>
 	</build>
 
 </project>
