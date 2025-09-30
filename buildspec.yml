@@ -7,19 +7,25 @@ phases:
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 983491056401.dkr.ecr.us-east-1.amazonaws.com
       - REPOSITORY_URL=983491056401.dkr.ecr.us-east-1.amazonaws.com/spring-demo-ecr
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo "REPOSITORY_URL=$REPOSITORY_URL"
+      - echo "IMAGE_TAG=$IMAGE_TAG"
 
   build:
     commands:
       - echo Build started on $(date)
       - echo Building the jar file...
       - mvn clean install
+      - ls target/  # Ensure the JAR file is built
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URL:latest .
+      - ls -al  # Ensure necessary files are in the build context
+      - docker build --progress=plain --no-cache -t $REPOSITORY_URL:latest .
       - docker tag $REPOSITORY_URL:latest $REPOSITORY_URL:$IMAGE_TAG
+
   post_build:
     commands:
       - echo Build completed on $(date)
       - echo Pushing images to ECR...
+      - docker images  # Verify Docker images before pushing
       - docker push $REPOSITORY_URL:latest
       - docker push $REPOSITORY_URL:$IMAGE_TAG
       - echo Writing imagedefinitions.json file...
@@ -32,4 +38,3 @@ artifacts:
   files:
     - imagedefinitions.json
     - target/springboot-aws-deploy.jar
-
